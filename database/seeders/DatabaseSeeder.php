@@ -24,7 +24,6 @@ class DatabaseSeeder extends Seeder
         // Crear usuario administrador con rol de Propietario
         $admin = User::create([
             'name' => 'Administrador',
-            'apellido' => 'Sistema',
             'email' => 'admin@celestina.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
@@ -41,11 +40,9 @@ class DatabaseSeeder extends Seeder
 
         // Crear usuario de prueba con rol de Vendedor
         $vendedor = User::create([
-            'name' => 'Vendedor',
-            'apellido' => 'Demo',
+            'name' => 'Vendedor Demo',
             'email' => 'vendedor@celestina.com',
             'password' => Hash::make('password'),
-            'telefono' => '70123456',
             'email_verified_at' => now(),
         ]);
 
@@ -60,12 +57,9 @@ class DatabaseSeeder extends Seeder
 
         // Crear usuario de prueba con rol de Cliente
         $cliente = User::create([
-            'name' => 'Juan',
-            'apellido' => 'Pérez',
+            'name' => 'Juan Pérez',
             'email' => 'cliente@celestina.com',
             'password' => Hash::make('password'),
-            'telefono' => '71234567',
-            'domicilio' => 'Av. Principal #123',
             'email_verified_at' => now(),
         ]);
 
