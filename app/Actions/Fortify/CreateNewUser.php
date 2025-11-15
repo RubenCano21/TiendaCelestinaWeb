@@ -2,6 +2,8 @@
 
 namespace App\Actions\Fortify;
 
+use App\Enum\RoleEnum;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -30,10 +32,18 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $this->passwordRules(),
         ])->validate();
 
-        return User::create([
+        $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
             'password' => $input['password'],
         ]);
+
+        // Asignar automáticamente el rol de Cliente a los nuevos usuarios
+        $clienteRole = Role::where('name', RoleEnum::CLIENTE->value)->first();
+        if ($clienteRole) {
+            $user->roles()->attach($clienteRole->id);
+        }
+
+        return $user;
     }
 }

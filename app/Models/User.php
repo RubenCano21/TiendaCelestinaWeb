@@ -21,9 +21,11 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'apellido',
         'email',
         'password',
-        'role',
+        'telefono',
+        'domicilio',
     ];
 
     /**
@@ -198,5 +200,21 @@ class User extends Authenticatable
     public function isVendedor(): bool
     {
         return $this->hasRole('vendedor');
+    }
+
+    /**
+     * Check if the user is a cliente.
+     */
+    public function isCliente(): bool
+    {
+        return $this->hasRole('cliente');
+    }
+
+    /**
+     * Get the user's full name.
+     */
+    public function getFullNameAttribute(): string
+    {
+        return trim("{$this->name} {$this->apellido}");
     }
 }

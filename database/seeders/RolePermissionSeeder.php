@@ -47,13 +47,13 @@ class RolePermissionSeeder extends Seeder
             PermissionEnum::VIEW_CLIENTS->value,
             PermissionEnum::CREATE_CLIENTS->value,
             PermissionEnum::EDIT_CLIENTS->value,
-            
+
             PermissionEnum::VIEW_PRODUCTS->value,
-            
+
             PermissionEnum::VIEW_SALES->value,
             PermissionEnum::CREATE_SALES->value,
             PermissionEnum::EDIT_SALES->value,
-            
+
             PermissionEnum::VIEW_REPORTS->value,
         ];
 
@@ -63,8 +63,30 @@ class RolePermissionSeeder extends Seeder
 
         $vendedorRole->permissions()->sync($vendedorPermissionIds);
 
+        // Crear rol Cliente con permisos básicos
+        $clienteRole = Role::create([
+            'name' => RoleEnum::CLIENTE->value,
+            'display_name' => 'Cliente',
+            'description' => 'Usuario cliente del sistema con permisos básicos',
+        ]);
+
+        // Los clientes no tienen permisos administrativos
+        // Solo pueden ver sus propios datos y realizar compras
+        $clientePermissions = [
+            // Por ahora sin permisos administrativos
+            // Se pueden agregar permisos específicos de cliente más adelante
+        ];
+
+        if (!empty($clientePermissions)) {
+            $clientePermissionIds = collect($clientePermissions)
+                ->map(fn($permission) => $permissions[$permission]->id)
+                ->toArray();
+            $clienteRole->permissions()->sync($clientePermissionIds);
+        }
+
         $this->command->info('Roles y permisos creados exitosamente.');
         $this->command->info('- Rol Propietario: ' . count($permissions) . ' permisos');
         $this->command->info('- Rol Vendedor: ' . count($vendedorPermissions) . ' permisos');
+        $this->command->info('- Rol Cliente: ' . count($clientePermissions) . ' permisos');
     }
 }

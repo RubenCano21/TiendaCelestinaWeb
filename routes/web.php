@@ -23,11 +23,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('permission:' . PermissionEnum::VIEW_CLIENTS->value)
         ->name('clientes.index');
 
-    Route::get('clientes/{cliente}', [ClienteController::class, 'show'])
-        ->middleware('permission:' . PermissionEnum::VIEW_CLIENTS->value)
-        ->name('clientes.show');
-
-    // Crear clientes
+    // Crear clientes (DEBE IR ANTES de {cliente})
     Route::get('clientes/create', [ClienteController::class, 'create'])
         ->middleware('permission:' . PermissionEnum::CREATE_CLIENTS->value)
         ->name('clientes.create');
@@ -36,10 +32,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('permission:' . PermissionEnum::CREATE_CLIENTS->value)
         ->name('clientes.store');
 
-    // Editar clientes
+    // Editar clientes (DEBE IR ANTES de {cliente})
     Route::get('clientes/{cliente}/edit', [ClienteController::class, 'edit'])
         ->middleware('permission:' . PermissionEnum::EDIT_CLIENTS->value)
         ->name('clientes.edit');
+
+    // Ver detalle de cliente (DEBE IR DESPUÉS de rutas específicas)
+    Route::get('clientes/{cliente}', [ClienteController::class, 'show'])
+        ->middleware('permission:' . PermissionEnum::VIEW_CLIENTS->value)
+        ->name('clientes.show');
 
     Route::put('clientes/{cliente}', [ClienteController::class, 'update'])
         ->middleware('permission:' . PermissionEnum::EDIT_CLIENTS->value)

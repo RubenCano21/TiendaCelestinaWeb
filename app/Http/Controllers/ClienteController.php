@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Enum\PermissionEnum;
-use App\Models\Cliente;
+use App\Enum\RoleEnum;
+use App\Models\Role;
+use App\Models\User;
 use App\Traits\HasRolePermissionChecks;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -20,8 +22,29 @@ class ClienteController extends Controller
     {
         $user = $request->user();
 
-        return Inertia::render('Clientes/Index', [
-            'clientes' => Cliente::all(),
+        // Obtener solo usuarios con rol de cliente
+        $clienteRole = Role::where('name', RoleEnum::CLIENTE->value)->first();
+        $clientes = User::whereHas('roles', function ($query) use ($clienteRole) {
+            $query->where('role_id', $clienteRole->id);
+        })
+        ->orderBy('id', 'desc')
+        ->get()
+        ->map(function ($cliente) {
+            return [
+                'id' => $cliente->id,
+                'nombre' => $cliente->name,
+                'apellido' => $cliente->apellido,
+                'nombre_completo' => $cliente->full_name,
+                'email' => $cliente->email,
+                'telefono' => $cliente->telefono,
+                'domicilio' => $cliente->domicilio,
+                'created_at' => $cliente->created_at,
+                'updated_at' => $cliente->updated_at,
+            ];
+        });
+
+        return Inertia::render('clientes/Index', [
+            'clientes' => $clientes,
             'can' => [
                 'create' => $user->hasPermission(PermissionEnum::CREATE_CLIENTS->value),
                 'edit' => $user->hasPermission(PermissionEnum::EDIT_CLIENTS->value),
@@ -33,9 +56,9 @@ class ClienteController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): InertiaResponse
     {
-        //
+        return Inertia::render('clientes/Create');
     }
 
     /**
@@ -43,13 +66,47 @@ class ClienteController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'apellido' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email|max:255',
+            'password' => 'required|string|min:8|confirmed',
+            'telefono' => 'nullable|string|max:255',
+            'domicilio' => 'nullable|string|max:255',
+        ], [
+            'nombre.required' => 'El nombre es obligatorio.',
+            'apellido.required' => 'El apellido es obligatorio.',
+            'email.required' => 'El email es obligatorio.',
+            'email.email' => 'El email debe ser una dirección válida.',
+            'email.unique' => 'Este email ya está registrado.',
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.confirmed' => 'Las contraseñas no coinciden.',
+        ]);
+
+        // Crear el usuario
+        $cliente = User::create([
+            'name' => $validated['nombre'],
+            'apellido' => $validated['apellido'],
+            'email' => $validated['email'],
+            'password' => bcrypt($validated['password']),
+            'telefono' => $validated['telefono'] ?? null,
+            'domicilio' => $validated['domicilio'] ?? null,
+            'email_verified_at' => now(), // Auto-verificar email
+        ]);
+
+        // Asignar rol de Cliente
+        $clienteRole = Role::where('name', RoleEnum::CLIENTE->value)->first();
+        $cliente->roles()->attach($clienteRole->id);
+
+        return redirect()->route('clientes.index')
+            ->with('success', 'Cliente creado exitosamente.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Cliente $cliente)
+    public function show(User $cliente)
     {
         //
     }
@@ -57,7 +114,7 @@ class ClienteController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Cliente $cliente)
+    public function edit(User $cliente)
     {
         //
     }
@@ -65,7 +122,7 @@ class ClienteController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Cliente $cliente)
+    public function update(Request $request, User $cliente)
     {
         //
     }
@@ -73,7 +130,7 @@ class ClienteController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Cliente $cliente)
+    public function destroy(User $cliente)
     {
         //
     }
