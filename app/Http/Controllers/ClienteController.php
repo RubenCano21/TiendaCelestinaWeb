@@ -2,21 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\PermissionEnum;
 use App\Models\Cliente;
+use App\Traits\HasRolePermissionChecks;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
 class ClienteController extends Controller
 {
+    use HasRolePermissionChecks;
 
     /**
      * Display a listing of the resource.
      */
-    public function index(): InertiaResponse
+    public function index(Request $request): InertiaResponse
     {
-        return Inertia:: render('Clientes/Index', [
+        $user = $request->user();
+
+        return Inertia::render('Clientes/Index', [
             'clientes' => Cliente::all(),
+            'can' => [
+                'create' => $user->hasPermission(PermissionEnum::CREATE_CLIENTS->value),
+                'edit' => $user->hasPermission(PermissionEnum::EDIT_CLIENTS->value),
+                'delete' => $user->hasPermission(PermissionEnum::DELETE_CLIENTS->value),
+            ],
         ]);
     }
 
