@@ -28,6 +28,12 @@ enum PermissionEnum: string
     case EDIT_SALES = 'edit_sales';
     case DELETE_SALES = 'delete_sales';
 
+    // Gestion de compras
+    case VIEW_PURCHASES = 'view_purchases';
+    case CREATE_PURCHASES = 'create_purchases';
+    case EDIT_PURCHASES = 'edit_purchases';
+    case DELETE_PURCHASES = 'delete_purchases';
+
     // Gestión de Reportes
     case VIEW_REPORTS = 'view_reports';
     case EXPORT_REPORTS = 'export_reports';
@@ -65,6 +71,11 @@ enum PermissionEnum: string
             self::EDIT_SALES => 'Editar Ventas',
             self::DELETE_SALES => 'Eliminar Ventas',
 
+            self::VIEW_PURCHASES => 'Ver Compras',
+            self::CREATE_PURCHASES => 'Crear Compras',
+            self::EDIT_PURCHASES => 'Editar Compras',
+            self::DELETE_PURCHASES => 'Eliminar Compras',
+
             self::VIEW_REPORTS => 'Ver Reportes',
             self::EXPORT_REPORTS => 'Exportar Reportes',
 
@@ -96,6 +107,11 @@ enum PermissionEnum: string
             self::CREATE_SALES => 'Permite realizar ventas',
             self::EDIT_SALES => 'Permite editar ventas existentes',
             self::DELETE_SALES => 'Permite eliminar ventas',
+
+            self::VIEW_PURCHASES => 'Permite ver la lista de compras',
+            self::CREATE_PURCHASES => 'Permite registrar nuevas compras',
+            self::EDIT_PURCHASES => 'Permite editar compras existentes',
+            self::DELETE_PURCHASES => 'Permite eliminar compras',
 
             self::VIEW_REPORTS => 'Permite ver reportes del sistema',
             self::EXPORT_REPORTS => 'Permite exportar reportes',
