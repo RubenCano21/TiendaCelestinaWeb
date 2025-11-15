@@ -80,5 +80,10 @@ class DatabaseSeeder extends Seeder
         $this->command->info('Email: cliente@celestina.com');
         $this->command->info('Password: password');
         $this->command->info('Rol: Cliente');
+
+        // Crear 50 clientes adicionales
+        $this->call([
+            ClienteSeeder::class,
+        ]);
     }
 }
