@@ -29,7 +29,7 @@ const sidebarNavItems: NavItem[] = [
     },
 ];
 
-const currentPath = typeof window !== undefined ? window.location.pathname : '';
+const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
 </script>
 
 <template>
@@ -38,6 +38,10 @@ const currentPath = typeof window !== undefined ? window.location.pathname : '';
             title="Settings"
             description="Manage your profile and account settings"
         />
+        <Alert>
+            <span class="font-medium">Note:</span> Settings changes are saved
+            automatically.
+        </Alert>
 
         <div class="flex flex-col lg:flex-row lg:space-x-12">
             <aside class="w-full max-w-xl lg:w-48">
