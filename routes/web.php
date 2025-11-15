@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ProductoController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -53,6 +54,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('clientes/{cliente}', [ClienteController::class, 'destroy'])
         ->middleware('permission:' . PermissionEnum::DELETE_CLIENTS->value)
         ->name('clientes.destroy');
+
+    // Rutas de productos
+    Route::get('productos', [ProductoController::class, 'index'])
+        ->middleware('permission:' . PermissionEnum::VIEW_PRODUCTS->value)
+        ->name('productos.index');
 });
 
 require __DIR__.'/settings.php';
