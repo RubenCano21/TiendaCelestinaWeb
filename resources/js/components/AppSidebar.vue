@@ -13,11 +13,14 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { BookOpen, Folder, LayoutGrid, Users } from 'lucide-vue-next';
+import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
-const mainNavItems: NavItem[] = [
+const page = usePage();
+
+const allNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
@@ -27,8 +30,17 @@ const mainNavItems: NavItem[] = [
         title: 'Clientes',
         href: '/clientes',
         icon: Users,
+        permission: 'view_clients',
     },
 ];
+
+const mainNavItems = computed(() => {
+    const permissions = page.props.auth.permissions as string[];
+    return allNavItems.filter(item => {
+        if (!item.permission) return true;
+        return permissions.includes(item.permission);
+    });
+});
 
 const footerNavItems: NavItem[] = [
     {
