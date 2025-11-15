@@ -14,7 +14,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Users } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, Users, Package } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
@@ -31,6 +31,12 @@ const allNavItems: NavItem[] = [
         href: '/clientes',
         icon: Users,
         permission: 'view_clients',
+    },
+    {
+        title: 'Productos',
+        href: '/productos',
+        icon: Package,
+        permission: 'view_products',
     },
 ];
 

@@ -84,6 +84,7 @@ class DatabaseSeeder extends Seeder
         // Crear 50 clientes adicionales
         $this->call([
             ClienteSeeder::class,
+            ProductoSeeder::class,
         ]);
     }
 }
