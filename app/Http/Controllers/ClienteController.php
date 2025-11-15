@@ -28,8 +28,8 @@ class ClienteController extends Controller
             $query->where('role_id', $clienteRole->id);
         })
         ->orderBy('id', 'desc')
-        ->get()
-        ->map(function ($cliente) {
+        ->paginate(10)
+        ->through(function ($cliente) {
             return [
                 'id' => $cliente->id,
                 'nombre' => $cliente->name,

@@ -4,6 +4,7 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import type { BreadcrumbItem } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import Pagination from '@/components/Pagination.vue';
 import { Plus, Pencil, Trash2, Eye, Mail, Phone, MapPin } from 'lucide-vue-next';
 import {
     Dialog,
@@ -27,8 +28,28 @@ interface Cliente {
     updated_at: string;
 }
 
+interface PaginatedClientes {
+    data: Cliente[];
+    current_page: number;
+    first_page_url: string;
+    from: number | null;
+    last_page: number;
+    last_page_url: string;
+    links: Array<{
+        url: string | null;
+        label: string;
+        active: boolean;
+    }>;
+    next_page_url: string | null;
+    path: string;
+    per_page: number;
+    prev_page_url: string | null;
+    to: number | null;
+    total: number;
+}
+
 interface Props {
-    clientes: Cliente[];
+    clientes: PaginatedClientes;
     can: {
         create: boolean;
         edit: boolean;
@@ -107,7 +128,7 @@ const cancelDelete = () => {
                 </CardHeader>
                 <CardContent>
                     <div
-                        v-if="clientes.length === 0"
+                        v-if="clientes.data.length === 0"
                         class="flex flex-col items-center justify-center py-12"
                     >
                         <p class="text-muted-foreground mb-4 text-lg">
@@ -134,7 +155,7 @@ const cancelDelete = () => {
                                     <th
                                         class="text-muted-foreground px-4 py-3 text-left text-sm font-medium"
                                     >
-                                        ID
+                                        Codigo
                                     </th>
                                     <th
                                         class="text-muted-foreground px-4 py-3 text-left text-sm font-medium"
@@ -144,17 +165,26 @@ const cancelDelete = () => {
                                     <th
                                         class="text-muted-foreground px-4 py-3 text-left text-sm font-medium"
                                     >
-                                        Email
+                                        <div class="flex items-center gap-2">
+                                            <Mail class="h-4 w-4" />
+                                            Email
+                                        </div>
                                     </th>
                                     <th
                                         class="text-muted-foreground px-4 py-3 text-left text-sm font-medium"
                                     >
-                                        Teléfono
+                                        <div class="flex items-center gap-2">
+                                            <Phone class="h-4 w-4" />
+                                            Teléfono
+                                        </div>
                                     </th>
                                     <th
                                         class="text-muted-foreground px-4 py-3 text-left text-sm font-medium"
                                     >
-                                        Domicilio
+                                        <div class="flex items-center gap-2">
+                                            <MapPin class="h-4 w-4" />
+                                            Domicilio
+                                        </div>
                                     </th>
                                     <th
                                         class="text-muted-foreground px-4 py-3 text-right text-sm font-medium"
@@ -165,30 +195,23 @@ const cancelDelete = () => {
                             </thead>
                             <tbody>
                                 <tr
-                                    v-for="cliente in clientes"
+                                    v-for="(cliente, index) in clientes.data"
                                     :key="cliente.id"
                                     class="border-b transition-colors hover:bg-muted/50"
                                 >
                                     <td class="px-4 py-3 text-sm">
-                                        {{ cliente.id }}
+                                        {{ (clientes.current_page - 1) * clientes.per_page + index + 1 }}
                                     </td>
                                     <td class="px-4 py-3 text-sm font-medium">
                                         {{ cliente.nombre_completo }}
                                     </td>
                                     <td class="px-4 py-3 text-sm">
-                                        <div class="flex items-center gap-2">
-                                            <Mail class="text-muted-foreground h-4 w-4" />
-                                            {{ cliente.email }}
-                                        </div>
+                                        {{ cliente.email }}
                                     </td>
                                     <td class="px-4 py-3 text-sm">
-                                        <div
-                                            v-if="cliente.telefono"
-                                            class="flex items-center gap-2"
-                                        >
-                                            <Phone class="text-muted-foreground h-4 w-4" />
+                                        <span v-if="cliente.telefono">
                                             {{ cliente.telefono }}
-                                        </div>
+                                        </span>
                                         <span
                                             v-else
                                             class="text-muted-foreground"
@@ -197,13 +220,9 @@ const cancelDelete = () => {
                                         </span>
                                     </td>
                                     <td class="px-4 py-3 text-sm">
-                                        <div
-                                            v-if="cliente.domicilio"
-                                            class="flex items-center gap-2"
-                                        >
-                                            <MapPin class="text-muted-foreground h-4 w-4" />
+                                        <span v-if="cliente.domicilio">
                                             {{ cliente.domicilio }}
-                                        </div>
+                                        </span>
                                         <span
                                             v-else
                                             class="text-muted-foreground"
@@ -251,6 +270,14 @@ const cancelDelete = () => {
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Paginación -->
+                    <div
+                        v-if="clientes.data.length > 0"
+                        class="mt-4"
+                    >
+                        <Pagination :data="clientes" />
                     </div>
                 </CardContent>
             </Card>
