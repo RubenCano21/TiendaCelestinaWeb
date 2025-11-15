@@ -6,6 +6,8 @@ use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ProductoController;
+use App\Models\Producto;
+use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -14,7 +16,20 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('dashboard', function () {
-    return Inertia::render('Dashboard');
+    // Obtener productos agrupados por categoría
+    $productosPorCategoria = Producto::select('categoria', DB::raw('count(*) as total'))
+        ->groupBy('categoria')
+        ->get()
+        ->map(function ($item) {
+            return [
+                'name' => $item->categoria ?? 'Sin categoría',
+                'value' => $item->total,
+            ];
+        });
+
+    return Inertia::render('Dashboard', [
+        'productosPorCategoria' => $productosPorCategoria,
+    ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Rutas de clientes con permisos específicos
