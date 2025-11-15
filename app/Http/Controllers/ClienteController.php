@@ -138,9 +138,25 @@ class ClienteController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(User $cliente)
+    public function edit(Request $request, User $cliente): InertiaResponse
     {
-        //
+        $user = $request->user();
+
+        // Verificar que el usuario sea un cliente
+        if (!$cliente->hasRole(RoleEnum::CLIENTE->value)) {
+            abort(404);
+        }
+
+        return Inertia::render('clientes/Edit', [
+            'cliente' => [
+                'id' => $cliente->id,
+                'nombre' => $cliente->name,
+                'apellido' => $cliente->apellido,
+                'email' => $cliente->email,
+                'telefono' => $cliente->telefono,
+                'domicilio' => $cliente->domicilio,
+            ],
+        ]);
     }
 
     /**
@@ -148,7 +164,46 @@ class ClienteController extends Controller
      */
     public function update(Request $request, User $cliente)
     {
-        //
+        // Verificar que el usuario sea un cliente
+        if (!$cliente->hasRole(RoleEnum::CLIENTE->value)) {
+            abort(404);
+        }
+
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'apellido' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $cliente->id,
+            'password' => 'nullable|string|min:8|confirmed',
+            'telefono' => 'nullable|string|max:255',
+            'domicilio' => 'nullable|string|max:255',
+        ], [
+            'nombre.required' => 'El nombre es obligatorio.',
+            'apellido.required' => 'El apellido es obligatorio.',
+            'email.required' => 'El email es obligatorio.',
+            'email.email' => 'El email debe ser una dirección válida.',
+            'email.unique' => 'Este email ya está registrado.',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.confirmed' => 'Las contraseñas no coinciden.',
+        ]);
+
+        // Actualizar los datos del cliente
+        $cliente->update([
+            'name' => $validated['nombre'],
+            'apellido' => $validated['apellido'],
+            'email' => $validated['email'],
+            'telefono' => $validated['telefono'] ?? null,
+            'domicilio' => $validated['domicilio'] ?? null,
+        ]);
+
+        // Actualizar la contraseña solo si se proporcionó
+        if (!empty($validated['password'])) {
+            $cliente->update([
+                'password' => bcrypt($validated['password']),
+            ]);
+        }
+
+        return redirect()->route('clientes.show', $cliente->id)
+            ->with('success', 'Cliente actualizado exitosamente.');
     }
 
     /**
