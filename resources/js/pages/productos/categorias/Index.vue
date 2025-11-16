@@ -64,7 +64,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
     {
         title: 'Categorias',
-        href: '/categorias',
+        href: '/productos/categorias',
     },
 ];
 

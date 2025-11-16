@@ -31,6 +31,8 @@ interface EntradaStock {
     producto: string;
     codigo_producto: number;
     cantidad: number;
+    precio_unitario: number;
+    monto_total: number;
     motivo: string | null;
     usuario: string | null;
     fecha: string;
@@ -114,6 +116,15 @@ const cancelDelete = () => {
     showDeleteDialog.value = false;
     entradaToDelete.value = null;
 };
+
+// Formatear precio
+const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('es-BO', {
+        style: 'currency',
+        currency: 'BOB',
+    }).format(price);
+};
+
 </script>
 
 <template>
@@ -195,6 +206,8 @@ const cancelDelete = () => {
                                         </div>
                                     </th>
                                     <th class="text-muted-foreground px-4 py-3 text-left text-sm font-medium">Cantidad</th>
+                                    <th class="text-muted-foreground px-4 py-3 text-left text-sm font-medium">Precio Unitario</th>
+                                    <th class="text-muted-foreground px-4 py-3 text-left text-sm font-medium">Monto Total</th>
                                     <th class="text-muted-foreground px-4 py-3 text-left text-sm font-medium">Motivo</th>
                                     <th class="text-muted-foreground px-4 py-3 text-left text-sm font-medium">Usuario</th>
                                     <th class="text-muted-foreground px-4 py-3 text-left text-sm font-medium">Fecha</th>
@@ -210,6 +223,12 @@ const cancelDelete = () => {
                                     <td class="px-4 py-3 text-sm font-medium">{{ entrada.producto }}</td>
                                     <td class="px-4 py-3 text-sm">
                                         <span class="font-semibold text-green-600">+{{ entrada.cantidad }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <span class="font-semibold text-green-600">+{{formatPrice( entrada.precio_unitario) }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <span class="font-semibold text-green-600">+{{ formatPrice(entrada.monto_total) }}</span>
                                     </td>
                                     <td class="px-4 py-3 text-sm">{{ entrada.motivo || '-' }}</td>
                                     <td class="px-4 py-3 text-sm">{{ entrada.usuario || '-' }}</td>

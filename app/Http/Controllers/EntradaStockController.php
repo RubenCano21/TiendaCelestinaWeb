@@ -50,6 +50,8 @@ class EntradaStockController extends Controller
                     'producto' => $entrada->producto->nombre,
                     'codigo_producto' => $entrada->codigo_producto,
                     'cantidad' => $entrada->cantidad,
+                    'precio_unitario' => $entrada->producto->precio_unitario,
+                    'monto_total' => $entrada->cantidad * $entrada->producto->precio_unitario,
                     'motivo' => $entrada->motivo,
                     'usuario' => $entrada->usuario,
                     'fecha' => $entrada->fecha->format('d/m/Y H:i'),
