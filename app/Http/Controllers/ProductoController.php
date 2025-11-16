@@ -6,6 +6,7 @@ use App\Enum\PermissionEnum;
 use App\Models\Producto;
 use App\Traits\HasRolePermissionChecks;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -80,15 +81,30 @@ class ProductoController extends Controller
      */
     public function create()
     {
-        //
+        $categorias = \App\Models\Categoria::orderBy('nombre')->get();
+        $unidades = \App\Models\UnidadMedida::orderBy('nombre')->get();
+
+        return Inertia::render('productos/Create', [
+            'categorias' => $categorias,
+            'unidades' => $unidades,
+        ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(\App\Http\Requests\StoreProductoRequest $request)
     {
-        //
+        $data = $request->validated();
+
+        if ($request->hasFile('imagen')) {
+            $data['imagen'] = $request->file('imagen')->store('productos', 'public');
+        }
+
+        $producto = Producto::create($data);
+
+        return redirect()->route('productos.index')
+            ->with('success', 'Producto creado exitosamente.');
     }
 
     /**
@@ -96,7 +112,11 @@ class ProductoController extends Controller
      */
     public function show(Producto $producto)
     {
-        //
+        $producto->load(['categoria', 'unidadMedida', 'entradasStock', 'salidasStock']);
+
+        return Inertia::render('productos/Show', [
+            'producto' => $producto,
+        ]);
     }
 
     /**
@@ -104,15 +124,35 @@ class ProductoController extends Controller
      */
     public function edit(Producto $producto)
     {
-        //
+        $categorias = \App\Models\Categoria::orderBy('nombre')->get();
+        $unidades = \App\Models\UnidadMedida::orderBy('nombre')->get();
+
+        return Inertia::render('productos/Edit', [
+            'producto' => $producto,
+            'categorias' => $categorias,
+            'unidades' => $unidades,
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Producto $producto)
+    public function update(\App\Http\Requests\UpdateProductoRequest $request, Producto $producto)
     {
-        //
+        $data = $request->validated();
+
+        if ($request->hasFile('imagen')) {
+            // Eliminar imagen anterior si existe
+            if ($producto->imagen && Storage::disk('public')->exists($producto->imagen)) {
+                Storage::disk('public')->delete($producto->imagen);
+            }
+            $data['imagen'] = $request->file('imagen')->store('productos', 'public');
+        }
+
+        $producto->update($data);
+
+        return redirect()->route('productos.index')
+            ->with('success', 'Producto actualizado exitosamente.');
     }
 
     /**
@@ -120,6 +160,18 @@ class ProductoController extends Controller
      */
     public function destroy(Producto $producto)
     {
-        //
+        try {
+            // Eliminar imagen si existe
+            if ($producto->imagen && Storage::disk('public')->exists($producto->imagen)) {
+                Storage::disk('public')->delete($producto->imagen);
+            }
+
+            $producto->delete();
+            return redirect()->route('productos.index')
+                ->with('success', 'Producto eliminado exitosamente.');
+        } catch (\Exception $e) {
+            return redirect()->route('productos.index')
+                ->with('error', 'No se puede eliminar el producto porque tiene movimientos de stock asociados.');
+        }
     }
 }

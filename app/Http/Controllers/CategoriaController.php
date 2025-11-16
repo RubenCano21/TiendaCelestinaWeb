@@ -37,7 +37,7 @@ class CategoriaController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return Inertia::render('categorias/Index', [
+        return Inertia::render('productos/categorias/Index', [
             'categorias' => $categorias,
             'filters' => $request->only(['search']),
             'can' => [
@@ -59,9 +59,12 @@ class CategoriaController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(\App\Http\Requests\StoreCategoriaRequest $request)
     {
-        //
+        $categoria = Categoria::create($request->validated());
+
+        return redirect()->route('categorias.index')
+            ->with('success', 'Categoría creada exitosamente.');
     }
 
     /**
@@ -69,7 +72,13 @@ class CategoriaController extends Controller
      */
     public function show(Categoria $categoria)
     {
-        //
+        $categoria->load(['productos' => function($query) {
+            $query->with(['unidadMedida'])->latest()->take(10);
+        }]);
+
+        return Inertia::render('categorias/Show', [
+            'categoria' => $categoria,
+        ]);
     }
 
     /**
@@ -77,15 +86,20 @@ class CategoriaController extends Controller
      */
     public function edit(Categoria $categoria)
     {
-        //
+        return Inertia::render('categorias/Edit', [
+            'categoria' => $categoria,
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Categoria $categoria)
+    public function update(\App\Http\Requests\UpdateCategoriaRequest $request, Categoria $categoria)
     {
-        //
+        $categoria->update($request->validated());
+
+        return redirect()->route('categorias.index')
+            ->with('success', 'Categoría actualizada exitosamente.');
     }
 
     /**
@@ -93,6 +107,13 @@ class CategoriaController extends Controller
      */
     public function destroy(Categoria $categoria)
     {
-        //
+        try {
+            $categoria->delete();
+            return redirect()->route('categorias.index')
+                ->with('success', 'Categoría eliminada exitosamente.');
+        } catch (\Exception $e) {
+            return redirect()->route('categorias.index')
+                ->with('error', 'No se puede eliminar la categoría porque tiene productos asociados.');
+        }
     }
 }
