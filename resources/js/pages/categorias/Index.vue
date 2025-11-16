@@ -5,7 +5,7 @@ import type { BreadcrumbItem } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Pagination from '@/components/Pagination.vue';
-import { Plus, Pencil, Trash2, Eye, Package, DollarSign, Tag, Search, X } from 'lucide-vue-next';
+import { Plus, Pencil, Trash2, Eye, Package,  Search, X } from 'lucide-vue-next';
 import {
     Dialog,
     DialogContent,
@@ -18,19 +18,13 @@ import { Input } from '@/components/ui/input';
 import { ref, watch } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
 
-interface Producto {
-    codigo_producto: number;
+interface Categoria {
+    codigo_categoria: number;
     nombre: string;
-    imagen: string | null;
-    precio_unitario: number;
-    categoria: string | null;
-    unidad_medida: string;
-    created_at: string;
-    updated_at: string;
 }
 
-interface PaginatedProductos {
-    data: Producto[];
+interface PaginatedCategoria {
+    data: Categoria[];
     current_page: number;
     first_page_url: string;
     from: number | null;
@@ -49,17 +43,10 @@ interface PaginatedProductos {
     total: number;
 }
 
-interface Categoria {
-    codigo: number;
-    nombre: string;
-}
-
 interface Props {
-    productos: PaginatedProductos;
-    categorias: Categoria[];
+    categorias: PaginatedCategoria;
     filters: {
         search?: string;
-        categoria?: string;
     };
     can: {
         create: boolean;
@@ -76,18 +63,17 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Productos',
-        href: '/productos',
+        title: 'Categorias',
+        href: '/categorias',
     },
 ];
 
 // Estado para los filtros
 const search = ref(props.filters.search || '');
-const categoriaFilter = ref(props.filters.categoria || '');
 
 // Estado para el diálogo de confirmación de eliminación
 const showDeleteDialog = ref(false);
-const productoToDelete = ref<Producto | null>(null);
+const categoriaToDelete = ref<Categoria | null>(null);
 
 // Función debounced para búsqueda
 const debouncedSearch = useDebounceFn(() => {
@@ -99,18 +85,12 @@ watch(search, () => {
     debouncedSearch();
 });
 
-// Watch para categoría (sin debounce)
-watch(categoriaFilter, () => {
-    applyFilters();
-});
-
 // Aplicar filtros
 const applyFilters = () => {
     router.get(
-        '/productos',
+        '/categorias',
         {
             search: search.value || undefined,
-            categoria: categoriaFilter.value || undefined,
         },
         {
             preserveState: true,
@@ -122,20 +102,19 @@ const applyFilters = () => {
 // Limpiar filtros
 const clearFilters = () => {
     search.value = '';
-    categoriaFilter.value = '';
 };
 
-const confirmDelete = (producto: Producto) => {
-    productoToDelete.value = producto;
+const confirmDelete = (categoria: Categoria) => {
+    categoriaToDelete.value = categoria;
     showDeleteDialog.value = true;
 };
 
 const deleteProducto = () => {
-    if (productoToDelete.value) {
-        router.delete(`/productos/${productoToDelete.value.codigo_producto}`, {
+    if (categoriaToDelete.value) {
+        router.delete(`/categorias/${categoriaToDelete.value.codigo_categoria}`, {
             onSuccess: () => {
                 showDeleteDialog.value = false;
-                productoToDelete.value = null;
+                categoriaToDelete.value = null;
             },
         });
     }
@@ -143,27 +122,20 @@ const deleteProducto = () => {
 
 const cancelDelete = () => {
     showDeleteDialog.value = false;
-    productoToDelete.value = null;
+    categoriaToDelete.value = null;
 };
 
-// Formatear precio
-const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-BO', {
-        style: 'currency',
-        currency: 'BOB',
-    }).format(price);
-};
 </script>
 
 <template>
-    <Head title="Productos" />
+    <Head title="Categorias" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 p-4">
             <!-- Header -->
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-3xl font-bold tracking-tight">Productos</h1>
+                    <h1 class="text-3xl font-bold tracking-tight">Categorias</h1>
 
                 </div>
                 <Button
@@ -171,9 +143,9 @@ const formatPrice = (price: number) => {
                     as-child
                     class="gap-2"
                 >
-                    <Link href="/productos/create">
+                    <Link href="/categorias/create">
                         <Plus class="h-4 w-4" />
-                        Nuevo Producto
+                        Nueva Categoria
                     </Link>
                 </Button>
             </div>
@@ -197,31 +169,11 @@ const formatPrice = (price: number) => {
                             </div>
                         </div>
 
-                        <!-- Filtro por categoría -->
-                        <div class="w-full md:w-64">
-                            <label class="text-sm font-medium mb-2 block">
-                                Categoría
-                            </label>
-                            <select
-                                v-model="categoriaFilter"
-                                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                            >
-                                <option value="">
-                                    Todas las categorías
-                                </option>
-                                <option
-                                    v-for="categoria in categorias"
-                                    :key="categoria.codigo"
-                                    :value="categoria.codigo"
-                                >
-                                    {{ categoria.nombre }}
-                                </option>
-                            </select>
-                        </div>
+
 
                         <!-- Botón limpiar filtros -->
                         <Button
-                            v-if="search || categoriaFilter"
+                            v-if="search"
                             variant="outline"
                             @click="clearFilters"
                             class="gap-2"
@@ -233,26 +185,26 @@ const formatPrice = (price: number) => {
                 </CardContent>
             </Card>
 
-            <!-- Tabla de Productos -->
+            <!-- Tabla de categorias -->
             <Card>
                 <CardHeader>
-                    <CardTitle>Lista de Productos</CardTitle>
+                    <CardTitle>Lista de Categorias</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div
-                        v-if="productos.data.length === 0"
+                        v-if="categorias.data.length === 0"
                         class="flex flex-col items-center justify-center py-12"
                     >
                         <p class="text-muted-foreground mb-4 text-lg">
-                            No hay productos registrados
+                            No hay categorias registrados
                         </p>
                         <Button
                             v-if="can.create"
                             as-child
                         >
-                            <Link href="/productos/create">
+                            <Link href="/categorias/create">
                                 <Plus class="mr-2 h-4 w-4" />
-                                Crear Primer Producto
+                                Crear Primer Categoria
                             </Link>
                         </Button>
                     </div>
@@ -283,27 +235,6 @@ const formatPrice = (price: number) => {
                                         </div>
                                     </th>
                                     <th
-                                        class="text-muted-foreground px-4 py-3 text-left text-sm font-medium"
-                                    >
-                                        <div class="flex items-center gap-2">
-                                            <Tag class="h-4 w-4" />
-                                            Categoría
-                                        </div>
-                                    </th>
-                                    <th
-                                        class="text-muted-foreground px-4 py-3 text-left text-sm font-medium"
-                                    >
-                                        <div class="flex items-center gap-2">
-                                            <DollarSign class="h-4 w-4" />
-                                            Precio
-                                        </div>
-                                    </th>
-                                    <th
-                                        class="text-muted-foreground px-4 py-3 text-left text-sm font-medium"
-                                    >
-                                        Unidad
-                                    </th>
-                                    <th
                                         class="text-muted-foreground px-4 py-3 text-right text-sm font-medium"
                                     >
                                         Acciones
@@ -312,36 +243,21 @@ const formatPrice = (price: number) => {
                             </thead>
                             <tbody>
                                 <tr
-                                    v-for="(producto, index) in productos.data"
-                                    :key="producto.codigo_producto"
+                                    v-for="(categoria, index) in categorias.data"
+                                    :key="categoria.codigo_categoria"
                                     class="border-b transition-colors hover:bg-muted/50"
                                 >
                                     <td class="px-4 py-3 text-sm">
-                                        {{ (productos.current_page - 1) * productos.per_page + index + 1 }}
+                                        {{ (categorias.current_page - 1) * categorias.per_page + index + 1 }}
                                     </td>
                                     <td class="px-4 py-3 text-sm">
-                                        {{ producto.codigo_producto }}
+                                        {{ categoria.codigo_categoria }}
                                     </td>
                                     <td class="px-4 py-3 text-sm font-medium">
-                                        {{ producto.nombre }}
+                                        {{ categoria.nombre }}
                                     </td>
-                                    <td class="px-4 py-3 text-sm">
-                                        <span v-if="producto.categoria">
-                                            {{ producto.categoria }}
-                                        </span>
-                                        <span
-                                            v-else
-                                            class="text-muted-foreground"
-                                        >
-                                            Sin categoría
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3 text-sm font-medium">
-                                        {{ formatPrice(producto.precio_unitario) }}
-                                    </td>
-                                    <td class="px-4 py-3 text-sm">
-                                        {{ producto.unidad_medida }}
-                                    </td>
+
+
                                     <td class="px-4 py-3">
                                         <div class="flex items-center justify-end gap-2">
                                             <Button
@@ -350,7 +266,7 @@ const formatPrice = (price: number) => {
                                                 size="sm"
                                             >
                                                 <Link
-                                                    :href="`/productos/${producto.codigo_producto}`"
+                                                    :href="`/categorias/${categoria.codigo_categoria}`"
                                                 >
                                                     <Eye class="h-4 w-4" />
                                                 </Link>
@@ -363,7 +279,7 @@ const formatPrice = (price: number) => {
                                                 size="sm"
                                             >
                                                 <Link
-                                                    :href="`/productos/${producto.codigo_producto}/edit`"
+                                                    :href="`/categorias/${categoria.codigo_categoria}/edit`"
                                                 >
                                                     <Pencil class="h-4 w-4" />
                                                 </Link>
@@ -373,7 +289,7 @@ const formatPrice = (price: number) => {
                                                 v-if="can.delete"
                                                 variant="ghost"
                                                 size="sm"
-                                                @click="confirmDelete(producto)"
+                                                @click="confirmDelete(categoria)"
                                             >
                                                 <Trash2 class="h-4 w-4 text-destructive" />
                                             </Button>
@@ -386,10 +302,10 @@ const formatPrice = (price: number) => {
 
                     <!-- Paginación -->
                     <div
-                        v-if="productos.data.length > 0"
+                        v-if="categorias.data.length > 0"
                         class="mt-4"
                     >
-                        <Pagination :data="productos" />
+                        <Pagination :data="categorias" />
                     </div>
                 </CardContent>
             </Card>
@@ -402,11 +318,11 @@ const formatPrice = (price: number) => {
         >
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>¿Eliminar producto?</DialogTitle>
+                    <DialogTitle>¿Eliminar categoría?</DialogTitle>
                     <DialogDescription>
-                        ¿Estás seguro de que deseas eliminar el producto
-                        <strong v-if="productoToDelete">
-                            {{ productoToDelete.nombre }}
+                        ¿Estás seguro de que deseas eliminar la categoría
+                        <strong v-if="categoriaToDelete">
+                            {{ categoriaToDelete.nombre }}
                         </strong>?
                         Esta acción no se puede deshacer.
                     </DialogDescription>

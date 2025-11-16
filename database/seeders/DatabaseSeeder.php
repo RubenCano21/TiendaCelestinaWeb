@@ -81,9 +81,11 @@ class DatabaseSeeder extends Seeder
         $this->command->info('Password: password');
         $this->command->info('Rol: Cliente');
 
-        // Crear 50 clientes adicionales
+        // Crear 50 clientes adicionales y productos
         $this->call([
             ClienteSeeder::class,
+            CategoriaSeeder::class,
+            UnidadMedidaSeeder::class,
             ProductoSeeder::class,
         ]);
     }
