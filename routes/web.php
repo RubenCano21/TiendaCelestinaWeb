@@ -103,6 +103,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('productos/entrada-stock', [EntradaStockController::class, 'store'])
         ->middleware('permission:' . PermissionEnum::CREATE_ENTRADAS_STOCK->value)
         ->name('entradas-stock.store');
+
+    Route::get('productos/entrada-stock/{entradaStock}/edit', [EntradaStockController::class, 'edit'])
+        ->middleware('permission:' . PermissionEnum::EDIT_ENTRADAS_STOCK->value)
+        ->name('entradas-stock.edit');
     // ... resto de rutas de entrada-stock
 
     // ========================================
@@ -115,6 +119,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('productos/salida-stock/create', [SalidaStockController::class, 'create'])
         ->middleware('permission:' . PermissionEnum::CREATE_SALIDAS_STOCK->value)
         ->name('salidas-stock.create');
+
+    Route::post('productos/salida-stock', [SalidaStockController::class, 'store'])
+        ->middleware('permission:' . PermissionEnum::CREATE_SALIDAS_STOCK->value)
+        ->name('salidas-stock.store');
+
+    Route::get('productos/salida-stock/{salidaStock}/edit', [SalidaStockController::class, 'edit'])
+        ->middleware('permission:' . PermissionEnum::EDIT_SALIDAS_STOCK->value)
+        ->name('salidas-stock.edit');
+
+    Route::get('productos/salida-stock/{salidaStock}', [SalidaStockController::class, 'show'])
+        ->middleware('permission:' . PermissionEnum::VIEW_SALIDAS_STOCK->value)
+        ->name('salidas-stock.show');
+
+    Route::put('productos/salida-stock/{salidaStock}', [SalidaStockController::class, 'update'])
+        ->middleware('permission:' . PermissionEnum::EDIT_SALIDAS_STOCK->value)
+        ->name('salidas-stock.update');
+
+    Route::delete('productos/salida-stock/{salidaStock}', [SalidaStockController::class, 'destroy'])
+        ->middleware('permission:' . PermissionEnum::DELETE_SALIDAS_STOCK->value)
+        ->name('salidas-stock.destroy');
 
     // ... resto de rutas de salida-stock
 

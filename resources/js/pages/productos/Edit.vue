@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import InputError from '@/components/InputError.vue';
 import { ArrowLeft, Save, ImageIcon } from 'lucide-vue-next';
 import { ref } from 'vue';
@@ -18,6 +20,7 @@ interface Categoria {
 interface UnidadMedida {
     codigo_unidad: number;
     nombre: string;
+    abreviatura?: string;
 }
 
 interface Producto {
@@ -27,8 +30,8 @@ interface Producto {
     precio_unitario: number;
     stock: number;
     imagen: string | null;
-    categoria_codigo: number;
-    unidad_codigo: number;
+    categoria_codigo: number | null;
+    unidad_codigo: number | null;  // ← Verifica que este sea el nombre correcto
 }
 
 interface Props {
@@ -38,6 +41,13 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+// 🔍 DEBUGGING TEMPORAL - Eliminar después
+console.log('Producto recibido:', {
+    producto: props.producto,
+    unidad_codigo: props.producto.unidad_codigo,
+    unidades_disponibles: props.unidades,
+});
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -58,14 +68,35 @@ const imagePreview = ref<string | null>(
     props.producto.imagen ? `/storage/${props.producto.imagen}` : null
 );
 
-const form = useForm({
+const form = useForm<{
+    nombre: string;
+    descripcion: string | null;
+    precio_unitario: number;
+    stock: number;
+    categoria_codigo: string | undefined;
+    unidad_codigo: string | undefined;
+    imagen: File | null;
+    _method: string;
+}>({
     nombre: props.producto.nombre,
     descripcion: props.producto.descripcion,
     precio_unitario: props.producto.precio_unitario,
     stock: props.producto.stock,
-    categoria_codigo: props.producto.categoria_codigo,
-    unidad_codigo: props.producto.unidad_codigo,
-    imagen: null as File | null,
+    // ✅ Asegurar que siempre sea string válido o undefined
+    categoria_codigo: props.producto.categoria_codigo
+        ? String(props.producto.categoria_codigo)
+        : undefined,
+    unidad_codigo: props.producto.unidad_codigo
+        ? String(props.producto.unidad_codigo)
+        : undefined,
+    imagen: null,
+    _method: 'PUT',
+});
+
+// 🔍 DEBUGGING - Ver valores del formulario
+console.log('Form inicializado:', {
+    categoria_codigo: form.categoria_codigo,
+    unidad_codigo: form.unidad_codigo,
 });
 
 const handleImageChange = (event: Event) => {
@@ -82,10 +113,37 @@ const handleImageChange = (event: Event) => {
 };
 
 const submit = () => {
-    form.post(`/productos/${props.producto.codigo_producto}`, {
-        forceFormData: true,
+    // Helper para convertir string a número de forma segura
+    const toNumber = (value: string | undefined | null) => {
+        if (!value || value === 'undefined' || value === 'null') return null;
+        const num = parseInt(value);
+        return isNaN(num) ? null : num;
+    };
+
+    // Preparar datos para enviar
+    const dataToSubmit = {
+        nombre: form.nombre,
+        descripcion: form.descripcion,
+        precio_unitario: form.precio_unitario,
+        stock: form.stock,
+        // Convertir de forma segura a números
+        categoria_codigo: toNumber(form.categoria_codigo),
+        unidad_codigo: toNumber(form.unidad_codigo),
+        imagen: form.imagen,
+        _method: 'PUT',
+    };
+
+    console.log('Datos a enviar:', dataToSubmit); // Debug
+
+    // ✅ Usar .post() con _method: 'PUT' cuando hay archivos
+    form.transform(() => dataToSubmit).post(`/productos/${props.producto.codigo_producto}`, {
+        forceFormData: true, // Necesario para subir archivos
+        preserveScroll: true,
         onSuccess: () => {
             router.visit('/productos');
+        },
+        onError: (errors) => {
+            console.error('Errores de validación:', errors);
         },
     });
 };
@@ -209,7 +267,7 @@ const submit = () => {
                                         <SelectItem
                                             v-for="categoria in categorias"
                                             :key="categoria.codigo_categoria"
-                                            :value="categoria.codigo_categoria"
+                                            :value="categoria.codigo_categoria.toString()"
                                         >
                                             {{ categoria.nombre }}
                                         </SelectItem>
@@ -234,9 +292,9 @@ const submit = () => {
                                         <SelectItem
                                             v-for="unidad in unidades"
                                             :key="unidad.codigo_unidad"
-                                            :value="unidad.codigo_unidad"
+                                            :value="String(unidad.codigo_unidad)"
                                         >
-                                            {{ unidad.nombre }}
+                                            {{ unidad.nombre }}{{ unidad.abreviatura ? ` (${unidad.abreviatura})` : '' }}
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
