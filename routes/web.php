@@ -16,16 +16,18 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('dashboard', function () {
-    // Obtener productos agrupados por categoría
-    $productosPorCategoria = Producto::select('categoria', DB::raw('count(*) as total'))
-        ->groupBy('categoria')
+    // Obtener productos agrupados por categoría con relación
+    $productosPorCategoria = Producto::with('categoria')
         ->get()
-        ->map(function ($item) {
+        ->groupBy('categoria_codigo')
+        ->map(function ($productos, $categoriaId) {
+            $categoria = $productos->first()->categoria;
             return [
-                'name' => $item->categoria ?? 'Sin categoría',
-                'value' => $item->total,
+                'name' => $categoria?->nombre ?? 'Sin categoría',
+                'value' => $productos->count(),
             ];
-        });
+        })
+        ->values();
 
     return Inertia::render('Dashboard', [
         'productosPorCategoria' => $productosPorCategoria,

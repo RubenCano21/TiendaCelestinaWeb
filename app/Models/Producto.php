@@ -10,7 +10,7 @@ class Producto extends Model
     use HasFactory;
 
     protected $primaryKey = 'codigo_producto';
-    public $incrementing = false;
+    public $incrementing = true;
     protected $keyType = 'int';
 
     /**
@@ -22,8 +22,25 @@ class Producto extends Model
         'codigo_producto',
         'nombre',
         'imagen',
-        'categoria',
         'precio_unitario',
-        'unidad_medida',
+        'stock',
+        'categoria_codigo',
+        'unidad_codigo',
     ];
+
+    /**
+     * Relación con Categoria
+     */
+    public function categoria()
+    {
+        return $this->belongsTo(Categoria::class, 'categoria_codigo', 'codigo_categoria');
+    }
+
+    /**
+     * Relación con UnidadMedida
+     */
+    public function unidadMedida()
+    {
+        return $this->belongsTo(UnidadMedida::class, 'unidad_codigo', 'codigo_medida');
+    }
 }

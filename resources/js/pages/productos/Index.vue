@@ -5,7 +5,7 @@ import type { BreadcrumbItem } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Pagination from '@/components/Pagination.vue';
-import { Plus, Pencil, Trash2, Eye, Package, DollarSign, Tag } from 'lucide-vue-next';
+import { Plus, Pencil, Trash2, Eye, Package, DollarSign, Tag, Search, X } from 'lucide-vue-next';
 import {
     Dialog,
     DialogContent,
@@ -14,7 +14,9 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { ref } from 'vue';
+import { Input } from '@/components/ui/input';
+import { ref, watch } from 'vue';
+import { useDebounceFn } from '@vueuse/core';
 
 interface Producto {
     codigo_producto: number;
@@ -47,8 +49,18 @@ interface PaginatedProductos {
     total: number;
 }
 
+interface Categoria {
+    codigo: number;
+    nombre: string;
+}
+
 interface Props {
     productos: PaginatedProductos;
+    categorias: Categoria[];
+    filters: {
+        search?: string;
+        categoria?: string;
+    };
     can: {
         create: boolean;
         edit: boolean;
@@ -56,7 +68,7 @@ interface Props {
     };
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -69,9 +81,49 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+// Estado para los filtros
+const search = ref(props.filters.search || '');
+const categoriaFilter = ref(props.filters.categoria || '');
+
 // Estado para el diálogo de confirmación de eliminación
 const showDeleteDialog = ref(false);
 const productoToDelete = ref<Producto | null>(null);
+
+// Función debounced para búsqueda
+const debouncedSearch = useDebounceFn(() => {
+    applyFilters();
+}, 500);
+
+// Watch para búsqueda con debounce
+watch(search, () => {
+    debouncedSearch();
+});
+
+// Watch para categoría (sin debounce)
+watch(categoriaFilter, () => {
+    applyFilters();
+});
+
+// Aplicar filtros
+const applyFilters = () => {
+    router.get(
+        '/productos',
+        {
+            search: search.value || undefined,
+            categoria: categoriaFilter.value || undefined,
+        },
+        {
+            preserveState: true,
+            preserveScroll: true,
+        }
+    );
+};
+
+// Limpiar filtros
+const clearFilters = () => {
+    search.value = '';
+    categoriaFilter.value = '';
+};
 
 const confirmDelete = (producto: Producto) => {
     productoToDelete.value = producto;
@@ -112,9 +164,7 @@ const formatPrice = (price: number) => {
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-3xl font-bold tracking-tight">Productos</h1>
-                    <p class="text-muted-foreground mt-1">
-                        Gestiona el inventario de productos
-                    </p>
+
                 </div>
                 <Button
                     v-if="can.create"
@@ -127,6 +177,61 @@ const formatPrice = (price: number) => {
                     </Link>
                 </Button>
             </div>
+
+            <!-- Filtros de búsqueda -->
+            <Card>
+                <CardContent class="pt-6">
+                    <div class="flex flex-col gap-4 md:flex-row md:items-end">
+                        <!-- Campo de búsqueda -->
+                        <div class="flex-1">
+                            <label class="text-sm font-medium mb-2 block">
+                                Buscar
+                            </label>
+                            <div class="relative">
+                                <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                <Input
+                                    v-model="search"
+                                    placeholder="Buscar por nombre o código..."
+                                    class="pl-9"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- Filtro por categoría -->
+                        <div class="w-full md:w-64">
+                            <label class="text-sm font-medium mb-2 block">
+                                Categoría
+                            </label>
+                            <select
+                                v-model="categoriaFilter"
+                                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                            >
+                                <option value="">
+                                    Todas las categorías
+                                </option>
+                                <option
+                                    v-for="categoria in categorias"
+                                    :key="categoria.codigo"
+                                    :value="categoria.codigo"
+                                >
+                                    {{ categoria.nombre }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Botón limpiar filtros -->
+                        <Button
+                            v-if="search || categoriaFilter"
+                            variant="outline"
+                            @click="clearFilters"
+                            class="gap-2"
+                        >
+                            <X class="h-4 w-4" />
+                            Limpiar
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
 
             <!-- Tabla de Productos -->
             <Card>
