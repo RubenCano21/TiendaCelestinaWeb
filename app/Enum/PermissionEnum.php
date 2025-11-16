@@ -43,6 +43,12 @@ enum PermissionEnum: string
     case MANAGE_ROLES = 'manage_roles';
     case MANAGE_PERMISSIONS = 'manage_permissions';
 
+    // Categorias
+    case VIEW_CATEGORIAS = 'view_categorias';
+    case CREATE_CATEGORIAS = 'create_categorias';
+    case EDIT_CATEGORIAS = 'edit_categorias';
+    case DELETE_CATEGORIAS = 'delete_categorias';
+
     public static function values(): array
     {
         return array_column(self::cases(), 'value');
@@ -82,6 +88,11 @@ enum PermissionEnum: string
             self::MANAGE_SETTINGS => 'Gestionar Configuración',
             self::MANAGE_ROLES => 'Gestionar Roles',
             self::MANAGE_PERMISSIONS => 'Gestionar Permisos',
+
+            self::VIEW_CATEGORIAS => 'Ver Categorias',
+            self::CREATE_CATEGORIAS => 'Crear Categorias',
+            self::EDIT_CATEGORIAS => 'Editar Categorias',
+            self::DELETE_CATEGORIAS => 'Eliminar Categorias',
         };
     }
 
@@ -119,6 +130,11 @@ enum PermissionEnum: string
             self::MANAGE_SETTINGS => 'Permite gestionar la configuración del sistema',
             self::MANAGE_ROLES => 'Permite gestionar roles de usuario',
             self::MANAGE_PERMISSIONS => 'Permite gestionar permisos',
+
+            self::VIEW_CATEGORIAS => 'Permite ver la lista de categorias',
+            self::CREATE_CATEGORIAS => 'Permite crear nuevas categorias',
+            self::EDIT_CATEGORIAS => 'Permite editar categorias existentes',
+            self::DELETE_CATEGORIAS => 'Permite eliminar categorias',
         };
     }
 }

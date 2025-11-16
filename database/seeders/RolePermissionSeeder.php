@@ -50,6 +50,8 @@ class RolePermissionSeeder extends Seeder
 
             PermissionEnum::VIEW_PRODUCTS->value,
 
+            PermissionEnum::VIEW_CATEGORIAS->value,
+
             PermissionEnum::VIEW_SALES->value,
             PermissionEnum::CREATE_SALES->value,
             PermissionEnum::EDIT_SALES->value,
