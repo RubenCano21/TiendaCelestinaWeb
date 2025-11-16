@@ -21,6 +21,9 @@ import {
     Users,
     Package,
     FolderArchiveIcon,
+    TrendingUp,
+    TrendingDown,
+    Ruler,
 } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
@@ -41,6 +44,7 @@ const allNavItems: NavItem[] = [
     },
     {
         title: 'Gestionar Productos',
+        href: '/productos',
         icon: Package,
         permission: 'view_products',
         children: [
@@ -51,10 +55,28 @@ const allNavItems: NavItem[] = [
                 permission: 'view_products',
             },
             {
-                title: 'Categorias',
-                href: '/categorias',
+                title: 'Categorías',
+                href: '/productos/categorias',
                 icon: FolderArchiveIcon,
                 permission: 'view_categorias',
+            },
+            {
+                title: 'Unidades de Medida',
+                href: '/productos/unidades',
+                icon: Ruler,
+                permission: 'view_unidades',
+            },
+            {
+                title: 'Entradas de Stock',
+                href: '/productos/entrada-stock',
+                icon: TrendingUp,
+                permission: 'view_entradas_stock',
+            },
+            {
+                title: 'Salidas de Stock',
+                href: '/productos/salida-stock',
+                icon: TrendingDown,
+                permission: 'view_salidas_stock',
             },
         ],
     },

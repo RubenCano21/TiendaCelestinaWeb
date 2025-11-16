@@ -43,4 +43,20 @@ class Producto extends Model
     {
         return $this->belongsTo(UnidadMedida::class, 'unidad_codigo', 'codigo_medida');
     }
+
+    /**
+     * Relación con EntradaStock
+     */
+    public function entradasStock()
+    {
+        return $this->hasMany(EntradaStock::class, 'codigo_producto', 'codigo_producto');
+    }
+
+    /**
+     * Relación con SalidaStock
+     */
+    public function salidasStock()
+    {
+        return $this->hasMany(SalidaStock::class, 'codigo_producto', 'codigo_producto');
+    }
 }

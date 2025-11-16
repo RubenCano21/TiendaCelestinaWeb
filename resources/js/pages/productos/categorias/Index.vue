@@ -128,7 +128,7 @@ const cancelDelete = () => {
 </script>
 
 <template>
-    <Head title="Categorias" />
+    <Head title="Categorias"></Head>
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 p-4">
