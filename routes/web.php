@@ -6,6 +6,7 @@ use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\CategoriaController;
 use App\Models\Producto;
 use Illuminate\Support\Facades\DB;
 
@@ -76,6 +77,42 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('productos', [ProductoController::class, 'index'])
         ->middleware('permission:' . PermissionEnum::VIEW_PRODUCTS->value)
         ->name('productos.index');
+
+    // Rutas para Categorias
+    Route::get('categorias', [CategoriaController::class, 'index'])
+        ->middleware('permission:' . PermissionEnum::VIEW_CATEGORIAS->value)
+        ->name('categorias.index');
+
+    // Crear categorías (DEBE IR ANTES de {categoria})
+    Route::get('categorias/create', [CategoriaController::class, 'create'])
+        ->middleware('permission:' . PermissionEnum::CREATE_CATEGORIAS->value)
+        ->name('categorias.create');
+
+    Route::post('categorias', [CategoriaController::class, 'store'])
+        ->middleware('permission:' . PermissionEnum::CREATE_CATEGORIAS->value)
+        ->name('categorias.store');
+
+    // Editar categorías (DEBE IR ANTES de {categoria})
+    Route::get('categorias/{categoria}/edit', [CategoriaController::class, 'edit'])
+        ->middleware('permission:' . PermissionEnum::EDIT_CATEGORIAS->value)
+        ->name('categorias.edit');
+
+    // Ver detalle de categoría (DEBE IR DESPUÉS de rutas específicas)
+    Route::get('categorias/{categoria}', [CategoriaController::class, 'show'])
+        ->middleware('permission:' . PermissionEnum::VIEW_CATEGORIAS->value)
+        ->name('categorias.show');
+
+    Route::put('categorias/{categoria}', [CategoriaController::class, 'update'])
+        ->middleware('permission:' . PermissionEnum::EDIT_CATEGORIAS->value)
+        ->name('categorias.update');
+
+    Route::patch('categorias/{categoria}', [CategoriaController::class, 'update'])
+        ->middleware('permission:' . PermissionEnum::EDIT_CATEGORIAS->value);
+
+    // Eliminar categorías
+    Route::delete('categorias/{categoria}', [CategoriaController::class, 'destroy'])
+        ->middleware('permission:' . PermissionEnum::DELETE_CATEGORIAS->value)
+        ->name('categorias.destroy');
 });
 
 require __DIR__.'/settings.php';

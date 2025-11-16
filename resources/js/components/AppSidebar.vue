@@ -14,7 +14,14 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Users, Package } from 'lucide-vue-next';
+import {
+    BookOpen,
+    Folder,
+    LayoutGrid,
+    Users,
+    Package,
+    FolderArchiveIcon,
+} from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
@@ -33,19 +40,52 @@ const allNavItems: NavItem[] = [
         permission: 'view_clients',
     },
     {
-        title: 'Productos',
-        href: '/productos',
+        title: 'Gestionar Productos',
         icon: Package,
         permission: 'view_products',
+        children: [
+            {
+                title: 'Productos',
+                href: '/productos',
+                icon: Package,
+                permission: 'view_products',
+            },
+            {
+                title: 'Categorias',
+                href: '/categorias',
+                icon: FolderArchiveIcon,
+                permission: 'view_categorias',
+            },
+        ],
     },
 ];
 
 const mainNavItems = computed(() => {
     const permissions = page.props.auth.permissions as string[];
-    return allNavItems.filter(item => {
-        if (!item.permission) return true;
-        return permissions.includes(item.permission);
-    });
+    return allNavItems
+        .filter((item) => {
+            if (!item.permission) return true;
+            return permissions.includes(item.permission);
+        })
+        .map((item) => {
+            // Si el item tiene children, filtrar también los children según permisos
+            if (item.children) {
+                const filteredChildren = item.children.filter((child) => {
+                    if (!child.permission) return true;
+                    return permissions.includes(child.permission);
+                });
+
+                // Solo incluir el item padre si tiene al menos un hijo visible
+                if (filteredChildren.length === 0) return null;
+
+                return {
+                    ...item,
+                    children: filteredChildren,
+                };
+            }
+            return item;
+        })
+        .filter((item) => item !== null);
 });
 
 const footerNavItems: NavItem[] = [

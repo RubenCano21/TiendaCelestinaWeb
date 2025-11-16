@@ -17,6 +17,11 @@ class Categoria extends Model
         'nombre',
     ];
 
+    public function getRouteKeyName()
+    {
+        return 'codigo_categoria';
+    }
+
     public function productos()
     {
         return $this->hasMany(Producto::class, 'categoria_codigo', 'codigo_categoria');
