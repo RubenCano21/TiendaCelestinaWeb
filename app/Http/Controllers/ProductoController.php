@@ -52,7 +52,7 @@ class ProductoController extends Controller
                     'unidad_medida' => $producto->unidadMedida?->nombre,
                     'unidad_codigo' => $producto->unidad_codigo,
                     'created_at' => $producto->created_at,
-                    'updated_at' => $producto->updated_at,
+                    'upda ted_at' => $producto->updated_at,
                 ];
             });
 

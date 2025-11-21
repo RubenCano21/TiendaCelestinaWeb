@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { dashboard, login, prueba, register } from '@/routes';
+import { dashboard } from '@/routes';
 import { Head, Link } from '@inertiajs/vue3';
 
 withDefaults(
@@ -33,25 +33,13 @@ withDefaults(
                 </Link>
                 <template v-else>
                     <Link
-                        :href="login()"
-                        class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]"
-                    >
-                        Log in
-                    </Link>
-                    <Link
                         v-if="canRegister"
-                        :href="register()"
-                        class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
-                    >
-                        Register
-                    </Link>
-                    <Link
-                        v-if="canRegister"
-                        :href="prueba()"
+
                         class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
                     >
                         Prueba
                     </Link>
+                    <p>Contenido de la página Prueba</p>
                 </template>
             </nav>
         </header>
@@ -61,6 +49,7 @@ withDefaults(
             <main
                 class="flex w-full max-w-[335px] flex-col-reverse overflow-hidden rounded-lg lg:max-w-4xl lg:flex-row"
             >
+            <p>Contenido adicional en la página Pruebas, Para que no llores</p>
             </main>
         </div>
         <div class="hidden h-14.5 lg:block"></div>
