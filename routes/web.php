@@ -19,6 +19,10 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+Route::get('prueba', function () {
+    return Inertia::render('Prueba');
+})->name('prueba');
+
 Route::get('dashboard', function () {
     // Obtener productos agrupados por categoría con relación
     $productosPorCategoria = Producto::with('categoria')
